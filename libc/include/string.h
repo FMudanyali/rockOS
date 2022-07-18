@@ -8,6 +8,10 @@
 extern "C" {
 #endif
 
+char* __stpcpy(char* __restrict, const char* __restrict);
+char* strcpy(char* __restrict, const char* __restrict);
+char* strcat(char* __restrict, const char* __restrict);
+
 int memcmp(const void*, const void*, size_t);
 void* memcpy(void* __restrict, const void* __restrict, size_t);
 void* memmove(void*, const void*, size_t);
