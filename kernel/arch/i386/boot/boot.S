@@ -25,10 +25,11 @@ stack_top:
 .type _start, @function
 _start:
     movl $stack_top, %esp
-    call _init          # call global constructors
+    cli
+    call gdt_init          # call global constructors
     call kernel_main    # transfer control to main kernel
     # Hang if kernel_main unexpectedly returns
-    cli
 1:  hlt
     jmp 1b
+
 .size _start, . - _start
