@@ -41,7 +41,7 @@ void gdt_init(void) {
         gdt_fill(GDT+i, rows+i);
     }
 
-    gp.base = (void*) GDT;
+    gp.base = &GDT;
     gp.limit = (GDT_ENTRIES * sizeof(gdt_entry)) - 1;
 
     gdt_load();

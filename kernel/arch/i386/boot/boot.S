@@ -26,8 +26,9 @@ stack_top:
 _start:
     movl $stack_top, %esp
     cli
-    call gdt_init          # call global constructors
-    call kernel_main    # transfer control to main kernel
+    call gdt_init           # initialize the GDT
+    call idt_init           # initialize the IDT
+    call kernel_main        # transfer control to main kernel
     # Hang if kernel_main unexpectedly returns
 1:  hlt
     jmp 1b
