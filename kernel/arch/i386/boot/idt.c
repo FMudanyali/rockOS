@@ -142,7 +142,6 @@ void idt_init(void) {
     idtptr.limit = (uint16_t)sizeof(idt_entry_t) * IDT_MAX_DESCRIPTORS - 1;
 
     idt_set_descriptor(0, int0_wrapper, 0x8E);
-    idt_set_descriptor(0, int0_wrapper, 0x8E);
     idt_set_descriptor(1, int1_wrapper, 0x8E);
     idt_set_descriptor(2, int2_wrapper, 0x8E);
     idt_set_descriptor(3, int3_wrapper, 0x8E);
