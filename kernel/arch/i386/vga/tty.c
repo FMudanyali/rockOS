@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <kernel/tty.h>
+#include <rockos/tty.h>
 
 #include "vga.h"
 

@@ -1,0 +1,7 @@
+#ifndef _ROCKOS_PAGING_H
+#define _ROCKOS_PAGING_H
+
+#define PAGE_ENTRIES 1024
+#define PAGE_SIZE 4 * PAGE_ENTRIES
+
+#endif

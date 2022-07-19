@@ -1,13 +1,8 @@
-#include <kernel/pic.h>
+#include <rockos/pic.h>
 #include <stdio.h>
 
 void PIC_remap() {
     printf("Beginning PIC initialization.\n");
-    
-    unsigned char a1, a2;
-
-    a1 = inb(PIC1_DATA); // save masks
-    a2 = inb(PIC2_DATA);
 
     outb(PIC1_COMMAND, ICW1_INIT | ICW1_ICW4); // Start init sequence in cascade mode
     io_wait();
@@ -32,5 +27,4 @@ void PIC_remap() {
     outb(PIC2_DATA, 0xFF);
 
     outb(PIC1_DATA, 0xFD); // Keyboard IRQ
-    //outb(PIC2_DATA, 0xFF);
 }

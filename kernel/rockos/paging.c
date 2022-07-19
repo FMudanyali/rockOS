@@ -1,12 +1,22 @@
-#include <stdio.h>
+#include <rockos/paging.h>
+#include <stdint.h>
 
-#include <kernel/tty.h>
-#include <kernel/gdt.h>
-#include <kernel/paging.h>
-#include <kernel/pic.h>
+void load_page_dir(uint32_t page_dir) {
+    asm volatile (
+        "mov %%eax, %%cr3"
+        :
+        : "a"(page_dir)
+        : "memory"
+    );
+}
 
-#define PAGE_ENTRIES 1024
-#define PAGE_SIZE 4 * PAGE_ENTRIES
+void enable_paging() {
+    asm volatile (
+        "mov %cr0, %eax\n"
+        "or $0x80000000, %eax\n"
+        "mov %eax, %cr0"
+    );
+}
 
 void paging_init() {
     uint32_t page_dir[PAGE_ENTRIES] __attribute__((aligned(PAGE_SIZE)));
@@ -28,25 +38,4 @@ void paging_init() {
 
     load_page_dir(page_dir);
     enable_paging();
-}
-
-void kernel_main(void) {
-    paging_init();
-    printf("Hello, kernel World!\n");
-    printf("String test: %s\n", "HELLOOOOO");
-    printf("Float test: %.10f\n", 0.123456789);
-    printf("Int test: %d\n", 747474);
-    printf("Hex test: 0x%x\n", 0xDEADBEEF);
-    printf("And now for 0.1 + 0.2...... which is: %.17f\n", 0.1 + 0.2);
-
-    unsigned char c, cold;
-    for(;;){
-        cold = c;
-        c = inb(0x60);
-        if (cold != c)
-            putchar(c);
-        outb(0x20, 0x20);
-    }
-
-    asm("cli; hlt");
 }

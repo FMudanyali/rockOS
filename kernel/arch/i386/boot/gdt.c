@@ -1,4 +1,4 @@
-#include <kernel/gdt.h>
+#include <rockos/gdt.h>
 #include <stdio.h>
 #include <stdint.h>
 

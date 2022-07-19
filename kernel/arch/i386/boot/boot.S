@@ -31,6 +31,7 @@ _start:
     call idt_init           # initialize the IDT
     call PIC_remap
     sti
+    call paging_init
     call kernel_main        # transfer control to main kernel
     # Hang if kernel_main unexpectedly returns
 1:  hlt

@@ -1,5 +1,5 @@
-#ifndef _KERNEL_IDT_H
-#define _KERNEL_IDT_H
+#ifndef _ROCKOS_IDT_H
+#define _ROCKOS_IDT_H
 
 #include <stdint.h>
 
@@ -43,5 +43,7 @@ static char* err_msg[] = {
     "#VE Virtualization Exception!",
     "#CP Control Protection Exception!"
 };
+
+unsigned char readkey();
 
 #endif

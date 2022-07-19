@@ -1,8 +1,16 @@
-#include <kernel/idt.h>
+#include <rockos/idt.h>
+#include <rockos/pic.h>
 #include <stdio.h>
 
+static unsigned char key;
+
 __attribute__((interrupt)) void keyboard_handler(void* frame) {
-    return;
+    key = inb(0x60);
+    outb(0x20, 0x20);
+}
+
+unsigned char readkey() {
+    return key;
 }
 
 __attribute__((interrupt)) void int_handler(void* frame, unsigned int number) {
