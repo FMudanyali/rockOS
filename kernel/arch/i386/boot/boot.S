@@ -24,10 +24,12 @@ stack_top:
 .global _start
 .type _start, @function
 _start:
-    movl $stack_top, %esp
     cli
     call gdt_init           # initialize the GDT
+    movl $stack_top, %esp
+    call terminal_initialize
     call idt_init           # initialize the IDT
+    call PIC_remap
     call kernel_main        # transfer control to main kernel
     # Hang if kernel_main unexpectedly returns
 1:  hlt

@@ -41,8 +41,18 @@ void gdt_init(void) {
         gdt_fill(GDT+i, rows+i);
     }
 
-    gp.base = &GDT;
-    gp.limit = (GDT_ENTRIES * sizeof(gdt_entry)) - 1;
+    gp.base = (uintptr_t)&GDT[0];
+    gp.limit = sizeof(gdt_entry) * GDT_ENTRIES - 1;
 
-    gdt_load();
+    __asm__ volatile("lgdt %0" : : "m"(gp)); // Load new GDT
+    __asm__ volatile(
+        "jmp $0x0008, $fix_cs\n"
+        "fix_cs:\n"
+        "mov $0x0010, %ax\n"
+        "mov %ax, %ds\n"
+        "mov %ax, %es\n"
+        "mov %ax, %fs\n"
+        "mov %ax, %gs\n"
+        "mov %ax, %ss"
+    );
 }

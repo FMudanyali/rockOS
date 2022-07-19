@@ -33,7 +33,6 @@ typedef struct {
 
 void gdt_fill(gdt_entry*, gdt*);
 void gdt_init(void);
-extern void gdt_load();
 
 extern uint32_t TSS[32];
 extern gdt_entry GDT[GDT_ENTRIES];

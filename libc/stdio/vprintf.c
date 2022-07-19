@@ -190,11 +190,13 @@ int vprintf(const char* format, va_list list) {
             switch (specifier) {
                 case 'X':
                     base = 16;
+                    // fall through
                 case 'x':
                     base = base == 10 ? 17 : base;
                     if (altForm) {
                         displayString("0x", &chars);
                     }
+                    // fall through
                 case 'u':
                 {
                     switch (length) {
@@ -383,7 +385,7 @@ int vprintf(const char* format, va_list list) {
                 case 'e':
                 case 'E':
                     emode = true;
-
+                    // fall through
                 case 'f':
                 case 'F':
                 case 'g':

@@ -1,6 +1,7 @@
 #include <ssp.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #if UINT32_MAX == UINTPTR_MAX
 #define STACK_CHK_GUARD 0x74316974
@@ -17,4 +18,6 @@ void __stack_chk_fail(void){
 #elif __is_rockos_kernel
     panic("Stack smashing detected!");
 #endif
+    printf("Stack smashing detected!");
+    for(;;);
 }
