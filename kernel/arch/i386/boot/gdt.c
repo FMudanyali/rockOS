@@ -31,11 +31,11 @@ void gdt_init(void) {
 
     __asm__ volatile("lgdt %0" : : "m"(gdtptr)); // Load new GDT
     __asm__ volatile(
+        "jmp $0x0008, $fix_cs\n"
+        "fix_cs:\n"
         "mov %cr0, %eax\n"
         "or $1, %al\n" // set PE (Protection Enable) bit in CR0 (Control Register 0)
         "mov %eax, %cr0\n"
-        "jmp $0x0008, $fix_cs\n"
-        "fix_cs:\n"
         "mov $0x0010, %ax\n"
         "mov %ax, %ds\n"
         "mov %ax, %es\n"

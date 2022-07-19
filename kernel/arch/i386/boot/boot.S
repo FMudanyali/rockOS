@@ -16,7 +16,7 @@
 .section .bss
 .align 16
 stack_bottom:
-.skip 16384 # 16 KiB
+.skip 32768 # 32 KiB
 stack_top:
 
 # kernel entry point
@@ -30,6 +30,7 @@ _start:
     call terminal_initialize
     call idt_init           # initialize the IDT
     call PIC_remap
+    sti
     call kernel_main        # transfer control to main kernel
     # Hang if kernel_main unexpectedly returns
 1:  hlt

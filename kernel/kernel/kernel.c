@@ -3,6 +3,7 @@
 #include <kernel/tty.h>
 #include <kernel/gdt.h>
 #include <kernel/paging.h>
+#include <kernel/pic.h>
 
 #define PAGE_ENTRIES 1024
 #define PAGE_SIZE 4 * PAGE_ENTRIES
@@ -37,5 +38,15 @@ void kernel_main(void) {
     printf("Int test: %d\n", 747474);
     printf("Hex test: 0x%x\n", 0xDEADBEEF);
     printf("And now for 0.1 + 0.2...... which is: %.17f\n", 0.1 + 0.2);
+
+    unsigned char c, cold;
+    for(;;){
+        cold = c;
+        c = inb(0x60);
+        if (cold != c)
+            putchar(c);
+        outb(0x20, 0x20);
+    }
+
     asm("cli; hlt");
 }

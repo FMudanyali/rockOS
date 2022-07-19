@@ -18,23 +18,30 @@ typedef struct {
     uint32_t base;
 } __attribute__((packed)) idtr_t;
 
-typedef struct {
-    uint32_t ip;
-    uint32_t cs;
-    uint32_t flags;
-    uint32_t sp;
-    uint32_t ss;
-} __attribute__((packed)) idt_frame;
-
-typedef struct {
-    uint32_t err;
-    uint32_t ip;
-    uint32_t cs;
-    uint32_t flags;
-    uint32_t sp;
-    uint32_t ss;
-} __attribute__((packed)) idt_frame_err;
-
 static idtr_t idtptr;
+static char* err_msg[] = {
+    "#DE Divide Error!",
+    "#DB Debug Exception!",
+    "NMI Interrupt!",
+    "#BP Breakpoint!",
+    "#OF Overflow!",
+    "#BR Bound Range Exceeded!",
+    "#Invalid Opcode (Undefined Opcode)!",
+    "#NM Device Not Available (No Math Coprocessor)!",
+    "#DF Double Fault!",
+    "Coprocessor Segment Overrun (reserved)!",
+    "#TS Invalid TSS!",
+    "#NP Segment Not Present!",
+    "#SS Stack-Segment Fault!",
+    "#GP General Protection!",
+    "#PF Page Fault!",
+    "Unknown Reserved Fault 15!",
+    "#MF x87 FPU Floating-Point Error (Math Fault)!",
+    "#AC Alignment Check!",
+    "#MC Machine Check!",
+    "#XM SIMD Floating-Point Exception!",
+    "#VE Virtualization Exception!",
+    "#CP Control Protection Exception!"
+};
 
 #endif

@@ -1,102 +1,15 @@
 #include <kernel/idt.h>
 #include <stdio.h>
 
-__attribute__((interrupt)) void int_handler(void* frame, unsigned int number) {
-    unsigned int err = 0;
-    idt_frame* idt_ptr;
-    idt_frame_err* idt_ptr_e;
-    switch(number) {
-        case 8:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 14:
-        case 17:
-        case 21:
-            idt_ptr_e = (idt_frame_err*)frame;
-            err = 1;
-            break;
-        default:
-            idt_ptr = (idt_frame*)frame;
-            break;
-    }
-
-    switch(number) {
-        case 0:
-            printf("#DE Divide Error!\n");
-            break;
-        case 1:
-            printf("#DB Debug Exception!\n");
-            break;
-        case 2:
-            printf("NMI Interrupt!\n");
-            break;
-        case 3:
-            printf("#BP Breakpoint!\n");
-            break;
-        case 4:
-            printf("#OF Overflow!\n");
-            break;
-        case 5:
-            printf("#BR Bound Range Exceeded!\n");
-            break;
-        case 6:
-            printf("#Invalid Opcode (Undefined Opcode)!\n");
-            break;
-        case 7:
-            printf("#NM Device Not Available (No Math Coprocessor)!\n");
-            break;
-        case 9:
-            printf("Coprocessor Segment Overrun (reserved)!\n");
-            break;
-        case 16:
-            printf("#MF x87 FPU Floating-Point Error (Math Fault)!\n");
-            break;
-        case 18:
-            printf("#MC Machine Check!\n");
-            break;
-        case 19:
-            printf("#XM SIMD Floating-Point Exception!\n");
-            break;
-        case 20:
-            printf("#VE Virtualization Exception!\n");
-            break;
-        ////////
-        case 8:
-            printf("#DF Double Fault!\n");
-            break;
-        case 10:
-            printf("#TS Invalid TSS!\n");
-            break;
-        case 11:
-            printf("#NP Segment Not Present!\n");
-            break;
-        case 12:
-            printf("#SS Stack-Segment Fault!\n");
-            break;
-        case 13:
-            printf("#GP General Protection!\n");
-            break;
-        case 14:
-            printf("#PF Page Fault!\n");
-            break;
-        case 17:
-            printf("#AC Alignment Check!\n");
-            break;
-        case 21:
-            printf("#CP Control Protection Exception!\n");
-            break;
-    }
-
-    if(err){
-    printf("err: 0x%X, ip: 0x%X, cs: 0x%X, flags: 0x%X, sp: 0x%X, ss: 0x%X\n",
-        idt_ptr_e->err, idt_ptr_e->ip, idt_ptr_e->cs, idt_ptr_e->flags, idt_ptr_e->sp, idt_ptr_e->ss);
-    } else {
-    printf("ip: 0x%X, cs: 0x%X, flags: 0x%X, sp: 0x%X, ss: 0x%X\n",
-        idt_ptr->ip, idt_ptr->cs, idt_ptr->flags, idt_ptr->sp, idt_ptr->ss);
-    }
+__attribute__((interrupt)) void keyboard_handler(void* frame) {
     return;
+}
+
+__attribute__((interrupt)) void int_handler(void* frame, unsigned int number) {
+    if (number <= 21) {
+        printf("%s\n", err_msg[number]);
+    }
+    asm("cli;hlt");
 }
 
 #define INT_WRAPPER(NUM) __attribute__((interrupt)) void int##NUM##_wrapper(void* frame) { \
@@ -113,17 +26,29 @@ INT_WRAPPER(6)
 INT_WRAPPER(7)
 INT_WRAPPER(8)
 INT_WRAPPER(9)
-INT_WRAPPER(10)
-INT_WRAPPER(11)
-INT_WRAPPER(12)
-INT_WRAPPER(13)
-INT_WRAPPER(14)
+INT_WRAPPER(10) // Invalid TSS (IRQ2)
+INT_WRAPPER(11) // Segment not Present (IRQ3)
+INT_WRAPPER(12) // Stack Fault (IRQ4)
+INT_WRAPPER(13) // GP Fault (IRQ5)
+INT_WRAPPER(14) // Page Fault (IRQ6)
+INT_WRAPPER(15) // Reserved (IRQ7)
 INT_WRAPPER(16)
 INT_WRAPPER(17)
 INT_WRAPPER(18)
 INT_WRAPPER(19)
 INT_WRAPPER(20)
 INT_WRAPPER(21)
+// Reserved from now on
+INT_WRAPPER(22)
+INT_WRAPPER(23)
+INT_WRAPPER(24)
+INT_WRAPPER(25)
+INT_WRAPPER(26)
+INT_WRAPPER(27)
+INT_WRAPPER(28)
+INT_WRAPPER(29)
+INT_WRAPPER(30)
+INT_WRAPPER(31)
 
 static __attribute__((aligned(0x10))) idt_entry_t idt[IDT_MAX_DESCRIPTORS];
 static idtr_t idtptr;
@@ -156,13 +81,26 @@ void idt_init(void) {
     idt_set_descriptor(12, int12_wrapper, 0x8E);
     idt_set_descriptor(13, int13_wrapper, 0x8E);
     idt_set_descriptor(14, int14_wrapper, 0x8E);
+    idt_set_descriptor(15, int15_wrapper, 0x8E); // Reserved
     idt_set_descriptor(16, int16_wrapper, 0x8E);
     idt_set_descriptor(17, int17_wrapper, 0x8E);
     idt_set_descriptor(18, int18_wrapper, 0x8E);
     idt_set_descriptor(19, int19_wrapper, 0x8E);
     idt_set_descriptor(20, int20_wrapper, 0x8E);
     idt_set_descriptor(21, int21_wrapper, 0x8E);
+    // Reserved
+    idt_set_descriptor(22, int22_wrapper, 0x8E);
+    idt_set_descriptor(23, int23_wrapper, 0x8E);
+    idt_set_descriptor(24, int24_wrapper, 0x8E);
+    idt_set_descriptor(25, int25_wrapper, 0x8E);
+    idt_set_descriptor(26, int26_wrapper, 0x8E);
+    idt_set_descriptor(27, int27_wrapper, 0x8E);
+    idt_set_descriptor(28, int28_wrapper, 0x8E);
+    idt_set_descriptor(29, int29_wrapper, 0x8E);
+    idt_set_descriptor(30, int30_wrapper, 0x8E);
+    idt_set_descriptor(31, int31_wrapper, 0x8E);
+
+    idt_set_descriptor(33, keyboard_handler, 0x8E);
 
     __asm__ volatile("lidt %0" : : "m"(idtptr)); // Load new IDT
-    __asm__ volatile("sti"); // Set interrupt flag
 }
