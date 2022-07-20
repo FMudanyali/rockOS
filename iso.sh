@@ -12,4 +12,4 @@ menuentry "rockOS" {
     multiboot /boot/rockos.kernel
 }
 EOF
-grub2-mkrescue -o rockos.iso isodir
+"${GRUB_MKRESCUE}" -o rockos.iso isodir

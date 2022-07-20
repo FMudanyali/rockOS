@@ -21,6 +21,18 @@ export CPPFLAGS=''
 export SYSROOT="$(pwd)/sysroot"
 export CC="$CC --sysroot=$SYSROOT"
 
+if command -V grub2-file >/dev/null 2>&1; then
+    export GRUB_FILE="grub2-file"
+else
+    export GRUB_FILE="grub-file"
+fi
+
+if command -V grub2-mkrescue >/dev/null 2>&1; then
+    export GRUB_MKRESCUE="grub2-mkrescue"
+else
+    export GRUB_MKRESCUE="grub-mkrescue"
+fi
+
 # Work around that the -elf gcc targets doesn't have a system include directory
 # because it was configured with --without-headers rather than --with-sysroot.
 if echo "$HOST" | grep -Eq -- '-elf($|-)'; then

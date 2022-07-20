@@ -1,6 +1,6 @@
-DEFAULT_HOST!=../default-host.sh
+DEFAULT_HOST=$(shell ../default-host.sh)
 HOST?=DEFAULT_HOST
-HOSTARCH!=../target-triplet-to-arch.sh $(HOST)
+HOSTARCH=$(shell ../target-triplet-to-arch.sh $(HOST))
 
 CFLAGS?=-O3 -g
 CPPFLAGS?=
@@ -55,7 +55,7 @@ all: rockos.kernel
 
 rockos.kernel: $(OBJS) $(ARCHDIR)/linker.ld
 	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(LINK_LIST)
-	grub2-file --is-x86-multiboot rockos.kernel
+	$(GRUB_FILE) --is-x86-multiboot rockos.kernel
 
 $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
 	OBJ=`$(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=$(@F)` && cp "$$OBJ" $@
@@ -75,7 +75,7 @@ install: install-headers install-kernel
 
 install-headers:
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
-	cp -R --preserve=timestamps include/. $(DESTDIR)$(INCLUDEDIR)/.
+	cp -Rp include/. $(DESTDIR)$(INCLUDEDIR)/.
 
 install-kernel: rockos.kernel
 	mkdir -p $(DESTDIR)$(BOOTDIR)
