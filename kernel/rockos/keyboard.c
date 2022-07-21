@@ -25,7 +25,6 @@ static unsigned char keymap[89] = {
 };
 
 void initialize_keyset() {
-    //for(int i = 0; i < 89; ++i) keyset[i] = 0;
     memset(keyset, 0, 89);
     memset(keytimes, 0, 89);
 }
@@ -66,7 +65,6 @@ unsigned char readkey() {
                         return 0;
                     } else {
                         keyset[i] = 2;
-                        //return 0;
                     }
                 } else {
                     if(temptime - keytimes[i] < 5) {
