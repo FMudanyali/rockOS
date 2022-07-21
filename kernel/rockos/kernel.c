@@ -23,15 +23,11 @@ void kernel_main(void) {
     uint8_t hour = inb(0x71);
     printf("Time: %x:%x:%x\n", hour, min, sec);
 
-    unsigned char oldkey;
-    unsigned char key = readkey();
-    for(;;){
-        oldkey = key;
+    unsigned char key;
+    for(;;) {
         key = readkey();
-        if (key != '\0') {
+        if(key)
             putchar(key);
-        }
-            
     }
 
     asm("cli; hlt");
