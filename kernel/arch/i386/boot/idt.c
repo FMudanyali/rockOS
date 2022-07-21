@@ -1,17 +1,7 @@
 #include <rockos/idt.h>
-#include <rockos/pic.h>
+#include <rockos/keyboard.h>
+#include <rockos/timer.h>
 #include <stdio.h>
-
-static unsigned char key;
-
-__attribute__((interrupt)) void keyboard_handler(void* frame) {
-    key = inb(0x60);
-    outb(0x20, 0x20);
-}
-
-unsigned char readkey() {
-    return key;
-}
 
 __attribute__((interrupt)) void int_handler(void* frame, unsigned int number) {
     if (number <= 21) {
@@ -107,7 +97,9 @@ void idt_init(void) {
     idt_set_descriptor(29, int29_wrapper, 0x8E);
     idt_set_descriptor(30, int30_wrapper, 0x8E);
     idt_set_descriptor(31, int31_wrapper, 0x8E);
-
+    // IRQs
+    idt_set_descriptor(32, timer_handler, 0x8E);
+    timer_phase(100);
     idt_set_descriptor(33, keyboard_handler, 0x8E);
 
     __asm__ volatile("lidt %0" : : "m"(idtptr)); // Load new IDT

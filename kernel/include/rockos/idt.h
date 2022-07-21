@@ -44,6 +44,4 @@ static char* err_msg[] = {
     "#CP Control Protection Exception!"
 };
 
-unsigned char readkey();
-
 #endif

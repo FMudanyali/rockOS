@@ -23,8 +23,6 @@ void PIC_remap() {
     outb(PIC2_DATA, ICW4_8086);
     io_wait();
 
-    outb(PIC1_DATA, 0xFF); // restore saved masks
-    outb(PIC2_DATA, 0xFF);
-
-    outb(PIC1_DATA, 0xFD); // Keyboard IRQ
+    outb(PIC1_DATA, 0); // ALL THE INTERRUPTS
+    outb(PIC2_DATA, 0);
 }

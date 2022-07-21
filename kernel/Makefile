@@ -31,6 +31,8 @@ KERNEL_OBJS=\
 $(KERNEL_ARCH_OBJS) \
 rockos/kernel.o \
 rockos/paging.o \
+rockos/keyboard.o \
+rockos/timer.o \
 
 OBJS=\
 $(ARCHDIR)/boot/crti.o \

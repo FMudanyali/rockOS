@@ -1,7 +1,7 @@
 #include <rockos/paging.h>
 #include <stdint.h>
 
-void load_page_dir(uint32_t page_dir) {
+void load_page_dir(uint32_t* page_dir) {
     asm volatile (
         "mov %%eax, %%cr3"
         :
