@@ -37,8 +37,8 @@ static unsigned char keymapshift[89] = {
 void initialize_keyset() {
     memset(keyset, 0, 89);
     memset(keytimes, 0, 89);
-    memset(&keymap[59], 0, 29);
-    memset(&keymapshift[59], 0, 29);
+    memset(&keymap[59], 0, 89 - 59);
+    memset(&keymapshift[59], 0, 89 - 59);
 }
 
 uint8_t caps_lock = 0;
