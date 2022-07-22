@@ -16,10 +16,16 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <stdint.h>
+
 #ifndef _ROCKOS_PAGING_H
 #define _ROCKOS_PAGING_H
 
 #define PAGE_ENTRIES 1024
-#define PAGE_SIZE 4 * PAGE_ENTRIES
+#define PAGE_SIZE 4096
+
+uint32_t* get_page();
+void set_page_free(uint32_t*);
+uint32_t get_used_memsize();
 
 #endif

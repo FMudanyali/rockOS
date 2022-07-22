@@ -1,13 +1,18 @@
 #!/bin/sh
 #export PREFIX="$HOME/opt/cross-i686"
 
-echo "Welcome to rockOS toolchain compilation script, where would you like to install your toolchain?\nLeave blank for $HOME/opt/cross-i686"
+echo "Welcome to rockOS toolchain compilation script, where would you like to install your toolchain?"
+echo "Leave blank for $HOME/opt/cross-i686"
 
 read PREFIX
 
 if [ "$PREFIX" == "" ]; then
     export PREFIX="$HOME/opt/cross-i686"
 fi
+
+echo "This is the location you chose: $PREFIX"
+echo "Press Enter to continue"
+read continue
 
 mkdir -p "$PREFIX"
 export TARGET=i686-elf
