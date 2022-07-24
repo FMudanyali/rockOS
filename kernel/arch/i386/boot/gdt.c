@@ -37,6 +37,7 @@ void gdt_set_descriptor(uint8_t vector, uint32_t base, uint32_t limit, uint8_t a
 }
 
 void gdt_init(void) {
+    printf("Beginning gdt initialization.\n");
     gdt_set_descriptor(0, 0, 0, 0, 0);              // 0x0000 Null Descriptor
     gdt_set_descriptor(1, 0, 0xFFFFF, 0x9A, 0xC);   // 0x0008 Kernel Mode Code Segment
     gdt_set_descriptor(2, 0, 0xFFFFF, 0x92, 0xC);   // 0x0010 Kernel Mode Data Segment

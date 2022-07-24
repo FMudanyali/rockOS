@@ -1,5 +1,5 @@
 /**
- *  Paging section header of rockOS
+ *  KHeap section header of rockOS
  *  Copyright (C) 2022 Furkan Mudanyali
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -16,39 +16,43 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _ROCKOS_PAGING_H
-#define _ROCKOS_PAGING_H
+#ifndef _ROCKOS_KHEAP_H
+#define _ROCKOS_KHEAP_H
 
 #include <stdint.h>
+#include <rockos/data_struct/sorted_array.h>
+
+#define KHEAP_START 0xC0000000
+#define KHEAP_INITIAL_SIZE 0x100000
+#define HEAP_INDEX_SIZE 0x20000
+#define HEAP_MAGIC 0x06163474
+#define HEAP_MIN_SIZE 0x70000
 
 typedef struct {
-   uint32_t present: 1;
-   uint32_t rw: 1;
-   uint32_t user: 1;
-   uint32_t accessed: 1;
-   uint32_t dirty: 1;
-   uint32_t unused: 7;
-   uint32_t frame: 20;
-} Page;
+   uint32_t magic;
+   uint8_t hole;
+   uint32_t size;
+} Header;
 
 typedef struct {
-   Page pages[1024];
-} PageTable;
+   uint32_t magic;
+   Header* header;
+} Footer;
 
 typedef struct {
-   PageTable* tables[1024];
-   uint32_t tablesPhys[1024];
-   uint32_t physAddr;
-} PageDirectory;
+   SortedArray index;
+   uint32_t addr_start;
+   uint32_t addr_end;
+   uint32_t addr_max;
+   uint8_t supervisor;
+   uint8_t readonly;
+} Heap;
 
-void paging_init();
-void paging_switch_dir(PageDirectory*);
-Page* PageGet(uint32_t, int32_t, PageDirectory*);
-void FrameSet(uint32_t);
-void FrameClear(uint32_t);
-uint32_t FrameTest(uint32_t);
-uint32_t FrameFirst();
-void FrameFree(Page*);
-void FrameAlloc(Page*, char, char);
+Heap* HeapCreate(uint32_t, uint32_t, uint32_t, uint8_t, uint8_t);
+void* alloc(uint32_t, uint8_t, Heap*);
+void free(void*, Heap*);
+uint32_t kmalloc_int(uint32_t, uint8_t, uint32_t*);
+uint32_t kmalloc(uint32_t);
+void kfree(void*);
 
 #endif

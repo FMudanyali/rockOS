@@ -1,5 +1,5 @@
 /**
- *  PIT section of rockOS
+ *  Sorted array data structure header of rockOS
  *  Copyright (C) 2022 Furkan Mudanyali
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -16,29 +16,27 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <rockos/timer.h>
-#include <rockos/hal.h>
-#include <rockos/pic.h>
-#include <stdio.h>
+#ifndef _ROCKOS_ORDERED_ARRAY_H
+#define _ROCKOS_ORDERED_ARRAY_H
 
-uint64_t ticks = 0;
-uint8_t subticks = 0;
+#include <stdint.h>
 
-__attribute__((interrupt)) void timer_handler(__attribute__((unused)) void* frame) {
-    if(++subticks == SUBTICKS_PER_TICK) {
-        ++ticks;
-        subticks = 0;
-    }
-    pic_eoi(0);
-}
+typedef char (*LessThan)(void*, void*);
 
-void timer_phase(uint32_t hz) {
-    uint32_t divisor = PIT_SCALE / hz;
-    outb(PIT_CONTROL, PIT_SET);
-    outb(PIT_0, divisor & PIT_MASK);
-    outb(PIT_0, (divisor >> 8) & PIT_MASK);
-}
+typedef struct {
+    void** data;
+    uint32_t size;
+    uint32_t max_size;
+    LessThan less_than;
+} SortedArray;
 
-uint64_t get_ticks() {
-    return ticks*100 + subticks;
-}
+char less_than(void*, void*);
+
+SortedArray SortedArrayCreate(uint32_t, LessThan);
+SortedArray SortedArrayPlace(void*, uint32_t, LessThan);
+void SortedArrayDestroy(SortedArray*);
+void SortedArrayInsert(void*, SortedArray*);
+void* SortedArraySearch(uint32_t, SortedArray*);
+void SortedArrayDelete(uint32_t, SortedArray*);
+
+#endif

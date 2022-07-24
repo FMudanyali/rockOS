@@ -7,7 +7,7 @@ Welcome to rockOS project, a hobby OS that aims to run rogue and nethack.
 - PIC initialization
 - PIT timer
 - Keyboard driver
-- a thing that is supposed to be paging
+- Paging and Kheap
 
 
 ## Usage
@@ -40,6 +40,8 @@ you can run qemu.sh to compile and open the OS on QEMU or iso.sh to just generat
 ## Acknowledgements
 - osdev.org community for huge documentation on OS Development
 - musl for libc implementation
+- James Molloy for his paging and kheap tutorial
+- Free Software Foundation for multiboot specification
 
 
 ## License

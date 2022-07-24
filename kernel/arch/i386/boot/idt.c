@@ -96,6 +96,7 @@ void idt_set_descriptor(uint8_t vector, void (*isr)(void*), uint8_t flags) {
 }
 
 void idt_init(void) {
+    printf("Beginning IDT initialization.\n");
     idtptr.base = (uintptr_t)&idt[0];
     idtptr.limit = (uint16_t)sizeof(idt_entry_t) * IDT_MAX_DESCRIPTORS - 1;
 

@@ -1,22 +1,36 @@
-#include <stdio.h>
+/**
+ *  Entry point of rockOS
+ *  Copyright (C) 2022 Furkan Mudanyali
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, _either version 3 of the License, or
+ *  (at your option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
+#include <stdio.h>
 #include <rockos/tty.h>
 #include <rockos/keyboard.h>
 #include <rockos/pic.h>
 #include <rockos/hal.h>
 #include <rockos/timer.h>
 #include <rockos/paging.h>
+#include <rockos/kheap.h>
 #include <rockos/multiboot.h>
+#include <rockos/rockos.h>
 #include <string.h>
 
 extern char _rockos_start, _rockos_end;
 
 static multiboot_info_t* multiboot_info;
-
-void panic(char* str) {
-    printf("%s\n", str);
-    asm("cli;hlt");
-}
 
 void bootloader_init(multiboot_info_t* mbd, unsigned int magic) {
     /* Make sure the magic number matches for memory mapping*/
@@ -65,13 +79,15 @@ void kernel_main() {
             //
         }
     }
-    uint32_t* pages;
-    alloc_pages(pages, 1);
-    printf("Page Start: %#08X\n", *pages);
-    alloc_pages(*pages, 8192);
-    for(int i = 0; i < 8192; ++i){
-        //printf("Page Start: %#08X\n", (uint32_t)(*pages + i));
-    }
+
+    uint32_t a = kmalloc(8);
+    uint32_t b = kmalloc(8);
+    uint32_t c = kmalloc(8);
+    printf("A: %#08X B: %#08X C: %#08X\n",a,b,c);
+    kfree(c);
+    kfree(b);
+    uint32_t d = kmalloc(8);
+    printf("D: %#08X\n", d);
 
     unsigned char key;
     for(;;) {

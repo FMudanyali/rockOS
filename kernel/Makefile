@@ -30,6 +30,8 @@ LIBS:=$(LIBS) $(KERNEL_ARCH_LIBS)
 KERNEL_OBJS=\
 $(KERNEL_ARCH_OBJS) \
 rockos/kernel.o \
+rockos/data_struct/sorted_array.o \
+rockos/kheap.o \
 rockos/paging.o \
 rockos/keyboard.o \
 rockos/timer.o \
