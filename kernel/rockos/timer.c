@@ -6,7 +6,7 @@
 uint64_t ticks = 0;
 uint8_t subticks = 0;
 
-__attribute__((interrupt)) void timer_handler(void* frame) {
+__attribute__((interrupt)) void timer_handler(__attribute__((unused)) void* frame) {
     if(++subticks == SUBTICKS_PER_TICK) {
         ++ticks;
         subticks = 0;

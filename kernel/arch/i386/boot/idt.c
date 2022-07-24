@@ -21,9 +21,26 @@
 #include <rockos/timer.h>
 #include <stdio.h>
 
-__attribute__((interrupt)) void int_handler(void* frame, unsigned int number) {
+__attribute__((interrupt)) void int_handler(uint32_t* frame, unsigned int number) {
     if (number <= 21) {
         printf("%s\n", err_msg[number]);
+    }
+    switch(number){
+        case 14:
+            if(((uint32_t)frame & 1) == 1) printf("P Present Set.\n");
+            if(((uint32_t)frame & 2) == 2) printf("W Write Set.\n");
+            if(((uint32_t)frame & 4) == 4) printf("U User Set.\n");
+            if(((uint32_t)frame & 8) == 8) printf("R Reserved Write Set.\n");
+            if(((uint32_t)frame & 16) == 16) printf("PK Protection Key Set.\n");
+            if(((uint32_t)frame & 32) == 32) printf("SS Shadow Stack Set.\n");
+            if(((uint32_t)frame & 64) == 64) printf("SGX Software Guard Extensions Set.\n");
+            uint32_t address = 0;
+            asm("mov %%cr2, %%eax"
+                : "=a"(address)
+                :
+            );
+            printf("Address: %#08X\n", address);
+            break;
     }
     asm("cli;hlt");
 }
@@ -69,7 +86,7 @@ INT_WRAPPER(31)
 static __attribute__((aligned(0x10))) idt_entry_t idt[IDT_MAX_DESCRIPTORS];
 static idtr_t idtptr;
 
-void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags) {
+void idt_set_descriptor(uint8_t vector, void (*isr)(void*), uint8_t flags) {
     idt_entry_t* descriptor = &idt[vector];
     descriptor->isr_low = (uint32_t)isr & 0xFFFF;
     descriptor->kernel_cs = 0x08; // Whatever offset kernel code selector is in GDT

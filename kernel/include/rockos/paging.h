@@ -17,6 +17,7 @@
  */
 
 #include <stdint.h>
+#include <stddef.h>
 
 #ifndef _ROCKOS_PAGING_H
 #define _ROCKOS_PAGING_H
@@ -24,8 +25,6 @@
 #define PAGE_ENTRIES 1024
 #define PAGE_SIZE 4096
 
-uint32_t* get_page();
-void set_page_free(uint32_t*);
-uint32_t get_used_memsize();
+void alloc_pages(uint32_t*, size_t);
 
 #endif

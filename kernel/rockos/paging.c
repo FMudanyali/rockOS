@@ -1,5 +1,7 @@
 #include <rockos/paging.h>
 #include <stdint.h>
+#include <stddef.h>
+#include <stdio.h>
 
 void load_page_dir(uint32_t* page_dir) {
     asm volatile (
@@ -18,80 +20,57 @@ void enable_paging() {
     );
 }
 
-static uint32_t page_dir[PAGE_ENTRIES] __attribute__((aligned(PAGE_SIZE)));
-static uint32_t first_page_table[PAGE_ENTRIES] __attribute__((aligned(PAGE_SIZE)));
+extern char _rockos_end;
+static uint32_t* page_dir __attribute__((packed));
 
 void paging_init() {
+    page_dir = (uint32_t*)(((uint32_t)&_rockos_end & ~0xFFF) + 0x1000);
     for(int i = 0; i < PAGE_ENTRIES; i++) {
         // Supervisor: only kernel-mode can access
         // Write Enabled: Can be both read and written to
         // Not Present: Page table not present
-        page_dir[i] = 0x00000002;
+        *(page_dir + i) = 0x00000002;
     }
-    
+
+    uint32_t* firstPageTable __attribute__((packed)) = (uint32_t*)(((uint32_t)page_dir & ~0xFFF) + 0x1000);
     for(unsigned int i = 0; i < PAGE_ENTRIES; i++) {
         // As the address is page aligned, it will leave 12 bits zeroed,
         // which are used by the attributes.
-        first_page_table[i] = (i * 0x1000) | 0x103; // attr: supervisor, r/w, present, 9th bit set
+        firstPageTable[i] = (i*0x1000) | 0x003; // attr: supervisor, r/w, present, 9th bit set
     }
 
-    page_dir[0] = ((unsigned int)first_page_table) | 3; //attr: supervisor, r/w, present
-
+    page_dir[0] = (uint32_t)firstPageTable | 0x003; //attr: supervisor, r/w, present
     load_page_dir(page_dir);
     enable_paging();
 }
 
-uint32_t* get_page() {
-    // Search directories for tables
-    for (int i = 0; i < PAGE_ENTRIES; ++i) {
-        // If table is found (if 2nd and 1st bit are set)
-        if((page_dir[i] & 0x3) == 0x3) {
-            // Cast table location
-            uint32_t *mytable = (uint32_t*)((page_dir[i] >> 12) << 12);
-            // Search table for pages
-            for(int j = 0; j < PAGE_ENTRIES; ++j) {
-                // If page is found (9th, 2nd, 1st bit set)
-                if((mytable[j] & 0x103) == 0x103) {
-                    mytable[j] &= ~0x100; // Unset 9th bit
-                    return &mytable[j];
+void alloc_pages(uint32_t* pages, size_t size) {
+    for(size_t i = 0; i < size;) {
+        for(size_t j = 0; j < PAGE_ENTRIES && i < size; ++j) {
+            printf("oklahoma %#08X\n", page_dir[j]);
+            if((page_dir[j] & 3) == 3) {
+                uint32_t* pageTable __attribute__((packed)) = page_dir[j] & ~0xFFF;
+                for(int k = 0; k < PAGE_ENTRIES && i < size; ++k) {
+                    if((pageTable[k] & 3) == 3 && (pageTable[k] & 0x100) != 0x100) {
+                        pageTable[k] |= 0x100;
+                        pages[i] = ((uint32_t)pageTable & ~0xFFF) | (pageTable[k] >> 12);
+                        printf("connecticut %#08X\n", pages[i]);
+                        ++i;
+                    }
                 }
-            } // No page found till last entry
-            // Check if next table is not initialized
-            if((page_dir[i+1] & 0x3) != 0x3) {
-                // The last page of previous table points to the next table
-                uint32_t *newtable = &mytable[2*PAGE_ENTRIES];
-                for(int k = 0; k < PAGE_ENTRIES; ++k) {
-                    newtable[k] = (k * 0x1000) | 0x103; // attr: supervisor, r/w, present, 9th bit set
+            } else {
+                printf("aa %#08X\n", (page_dir[j-1] & ~0xFFF) + 0x4000);
+                uint32_t* newPageTable __attribute__((packed)) = (page_dir[j-1] & ~0xFFF) + 0x4000;
+                printf("alabama %#08X, %#08X\n", newPageTable[0], (page_dir[j-1] & ~0xFFF) + 0x4000);
+                for(unsigned int l = 0; l < PAGE_ENTRIES; l++) {
+                    // As the address is page aligned, it will leave 12 bits zeroed,
+                    // which are used by the attributes.
+                    newPageTable[l] = (l*0x1000) | 0x003; // attr: supervisor, r/w, present, 9th bit set
                 }
-                page_dir[i+1] = ((unsigned int)newtable) | 3; //attr: supervisor, r/w, present
+                page_dir[j] = (uint32_t)newPageTable | 0x003;
+                printf("NewPageTable: %#08X\n", page_dir[j]);
+                --j;
             }
         }
     }
-    return 0;
-}
-
-void set_page_free(uint32_t* addr) {
-    // Set 9th, 2nd and 1st bits
-    *(addr) |= 0x103;
-}
-
-uint32_t get_used_memsize() {
-    uint32_t used = 0;
-    // Iterate over page_dirs
-    for(int i = 0; i < PAGE_ENTRIES; ++i) {
-        // If a table is available
-        if((page_dir[i] & 3) == 3) {
-            // Cast the table
-            uint32_t* table = ((page_dir[i] >> 12) << 12);
-            // Iterate over table
-            for(int j = 0; j < PAGE_ENTRIES; ++j) {
-                // If a page is unavailable
-                if((table[j] & 0x103) != 0x103) {
-                    // Then it is used
-                    used += 4*4;
-                }
-            }
-        }
-    }
-    return used;
 }

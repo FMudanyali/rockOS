@@ -42,6 +42,9 @@ stack_top:
 .global _start
 .type _start, @function
 _start:
+    push %eax
+    push %ebx
+    call bootloader_init
     cli
     call gdt_init           # initialize the GDT
     movl $stack_top, %esp

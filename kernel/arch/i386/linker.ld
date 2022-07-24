@@ -3,6 +3,7 @@ ENTRY(_start)
 SECTIONS
 {
     . = 1M;
+    _rockos_start = .;
 
     .text BLOCK(4K) : ALIGN(4K)
     {
@@ -25,4 +26,5 @@ SECTIONS
         *(COMMON)
         *(.bss)
     }
+    _rockos_end = .;
 }

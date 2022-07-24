@@ -6,8 +6,32 @@
 #include <rockos/hal.h>
 #include <rockos/timer.h>
 #include <rockos/paging.h>
+#include <rockos/multiboot.h>
+#include <string.h>
 
-void kernel_main(void) {
+extern char _rockos_start, _rockos_end;
+
+static multiboot_info_t* multiboot_info;
+
+void panic(char* str) {
+    printf("%s\n", str);
+    asm("cli;hlt");
+}
+
+void bootloader_init(multiboot_info_t* mbd, unsigned int magic) {
+    /* Make sure the magic number matches for memory mapping*/
+    if(magic != MULTIBOOT_BOOTLOADER_MAGIC) {
+        panic("invalid magic number!");
+    }
+ 
+    /* Check bit 6 to see if we have a valid memory map */
+    if(!(mbd->flags >> 6 & 0x1)) {
+        panic("invalid memory map given by GRUB bootloader");
+    }
+    multiboot_info = mbd;
+}
+
+void kernel_main() {   
     printf("Hello, kernel World!\n");
     printf("String test: %s\n", "HELLOOOOO");
     printf("Float test: %.10f\n", 0.123456789);
@@ -27,23 +51,27 @@ void kernel_main(void) {
     min = (min & 0x0F) + ((min / 16) * 10);
     hour = ((hour & 0x0F) + (((hour & 0x70) / 16) * 10)) | (hour & 0x80);
     printf("Time: %02d:%02d:%02d UTC+3\n", (hour + 3) % 24, min, sec);
-
-    uint32_t first = get_used_memsize();
-    uint32_t limit = 1024 * 8;
-    uint32_t* pages[limit];
-
-    for(uint32_t i = 0; i < limit; i++) {
-        pages[i] = get_page();
-    }
-    uint32_t middle = get_used_memsize();
-
-    for(uint32_t i = 0; i < limit; i++) {
-        set_page_free(pages[i]);
-    }
-    uint32_t last = get_used_memsize();
     
-    printf("Before Allocation: %d KiB\nAfter allocation: %d KiB\nAfter Clear: %d KiB\n", first, middle, last);
-    printf("Finished!\n");
+    printf("RockOS Start: %#08X, RockOS End: %#08X\n", &_rockos_start, &_rockos_end);
+
+    for(multiboot_uint32_t i = 0; i < multiboot_info->mmap_length; i += sizeof(multiboot_memory_map_t)) {
+        multiboot_memory_map_t* mmmt = 
+            (multiboot_memory_map_t*) (multiboot_info->mmap_addr + i);
+ 
+        printf("Start Addr: %#08X | Length: %#08X | Size: %#08X | Type: %X\n",
+            mmmt->addr_low, mmmt->len_low, mmmt->size, mmmt->type);
+ 
+        if(mmmt->type == MULTIBOOT_MEMORY_AVAILABLE) {
+            //
+        }
+    }
+    uint32_t* pages;
+    alloc_pages(pages, 1);
+    printf("Page Start: %#08X\n", *pages);
+    alloc_pages(*pages, 8192);
+    for(int i = 0; i < 8192; ++i){
+        //printf("Page Start: %#08X\n", (uint32_t)(*pages + i));
+    }
 
     unsigned char key;
     for(;;) {

@@ -7,7 +7,7 @@ Welcome to rockOS project, a hobby OS that aims to run rogue and nethack.
 - PIC initialization
 - PIT timer
 - Keyboard driver
-- Bitmap paging
+- a thing that is supposed to be paging
 
 
 ## Usage
