@@ -35,6 +35,7 @@ rockos/kheap.o \
 rockos/paging.o \
 rockos/keyboard.o \
 rockos/timer.o \
+rockos/vfs.o \
 
 OBJS=\
 $(ARCHDIR)/boot/crti.o \

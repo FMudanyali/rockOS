@@ -18,6 +18,7 @@
 
 #include <rockos/paging.h>
 #include <rockos/kheap.h>
+#include <rockos/multiboot.h>
 #include <rockos/rockos.h>
 #include <string.h>
 
@@ -31,6 +32,7 @@ uint32_t* frames;
 uint32_t nframes;
 
 extern uint32_t start_addr;
+extern multiboot_info_t* multiboot_info;
 extern Heap* kheap;
 
 void FrameSet(uint32_t frame_addr) {
@@ -114,6 +116,7 @@ void paging_switch_dir(PageDirectory* dir) {
 }
 
 void paging_init() {
+    start_addr = *(uint32_t*)(multiboot_info->mods_addr + 4);
     printf("Initializing paging.\n");
     uint32_t page_end_mem = 0x1000000;
     nframes = page_end_mem / 0x1000;

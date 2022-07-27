@@ -24,8 +24,4 @@ static inline void panic(char* str) {
     asm("cli;hlt");
 }
 
-static inline void assert(uint32_t val) {
-    if(!val) {
-        panic("ASSERTION FAILED!");
-    }
-}
+#define assert(val) ((val) ? (void)0: (printf("ASSERTION FAILED, " __FILE__ ":%d: " #val "\n", __LINE__), panic("")))

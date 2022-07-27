@@ -25,12 +25,13 @@
 #include <rockos/paging.h>
 #include <rockos/kheap.h>
 #include <rockos/multiboot.h>
+#include <rockos/vfs.h>
 #include <rockos/rockos.h>
 #include <string.h>
 
 extern char _rockos_start, _rockos_end;
-
-static multiboot_info_t* multiboot_info;
+multiboot_info_t* multiboot_info;
+Tar* files;
 
 void bootloader_init(multiboot_info_t* mbd, unsigned int magic) {
     /* Make sure the magic number matches for memory mapping*/
@@ -46,12 +47,6 @@ void bootloader_init(multiboot_info_t* mbd, unsigned int magic) {
 }
 
 void kernel_main() {   
-    printf("Hello, kernel World!\n");
-    printf("String test: %s\n", "HELLOOOOO");
-    printf("Float test: %.10f\n", 0.123456789);
-    printf("Int test: %d\n", 747474);
-    printf("Hex test: 0x%x\n", 0xDEADBEEF);
-    printf("And now for 0.1 + 0.2...... which is: %.17f\n", 0.1 + 0.2);
     initialize_keyset();
     
     outb(0x70, 0x0); // Seconds
@@ -65,8 +60,6 @@ void kernel_main() {
     min = (min & 0x0F) + ((min / 16) * 10);
     hour = ((hour & 0x0F) + (((hour & 0x70) / 16) * 10)) | (hour & 0x80);
     printf("Time: %02d:%02d:%02d UTC+3\n", (hour + 3) % 24, min, sec);
-    
-    printf("RockOS Start: %#08X, RockOS End: %#08X\n", &_rockos_start, &_rockos_end);
 
     for(multiboot_uint32_t i = 0; i < multiboot_info->mmap_length; i += sizeof(multiboot_memory_map_t)) {
         multiboot_memory_map_t* mmmt = 
@@ -80,14 +73,17 @@ void kernel_main() {
         }
     }
 
-    uint32_t a = kmalloc(8);
-    uint32_t b = kmalloc(8);
-    uint32_t c = kmalloc(8);
-    printf("A: %#08X B: %#08X C: %#08X\n",a,b,c);
-    kfree(c);
-    kfree(b);
-    uint32_t d = kmalloc(8);
-    printf("D: %#08X\n", d);
+    files = kmalloc(256 * sizeof(Tar));
+    uint32_t initrd_location = *((uint32_t*)multiboot_info->mods_addr);
+
+    printf("Initrd location: %#08X\n", initrd_location);
+    uint32_t fileCount = TarParse(initrd_location);
+
+    printf("Found files: %d\n", fileCount);
+    for(uint32_t i = 0; i < fileCount; ++i) {
+        printf("Filename: %s\n", files[i].header->filename);
+        printf("%s\n", files[i].data);
+    }
 
     unsigned char key;
     for(;;) {
