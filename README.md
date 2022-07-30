@@ -20,8 +20,9 @@ such as QEMU or Virtualbox, bare-metal not tested.
 - grub2 (if under GNU/Linux)
 - xorriso
 - make
-- tar (for compiling the toolchain)
-- wget/curl (for compiling the toolchain)
+- tar
+### Dependencies for compiling toolchain
+- wget/curl
 
 If it is your first time building, you need to compile the toolchain first.
 For that, you just need to run build-toolchain.sh, which will download binutils,
