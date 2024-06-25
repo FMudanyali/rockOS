@@ -1,3 +1,5 @@
+# Deprecated, see continuation project [Asagiri](https://git.homd.xyz/asagiri/asagiri)
+
 # rockOS
 Welcome to rockOS project, a hobby OS that aims to run rogue and nethack.
 
